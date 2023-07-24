@@ -12,6 +12,8 @@
     "        device               File of Opal-compliant disk\n"                                                       \
     "        command              One of the commands defined further\n"
 
+#define PSID_MAX_LEN 512
+
 enum ArgKey {
     ARG_KEY_VERIFY_PIN = 'v',
     ARG_KEY_ASSIGN_PIN = 1,
@@ -106,9 +108,9 @@ struct Arguments {
     uint16_t locking_range;
     size_t user[32];
     size_t user_count;
-    unsigned char verify_pin[512];
+    unsigned char *verify_pin;
     size_t verify_pin_len;
-    unsigned char assign_pin[512];
+    unsigned char *assign_pin;
     size_t assign_pin_len;
     uint64_t locking_range_start;
     uint64_t locking_range_length;
@@ -127,42 +129,15 @@ struct Arguments {
     .locking_range_length = VAL_UNDEFINED,
 };
 
-static error_t parse_opt_hex(const char *source, unsigned char *target, size_t *target_len)
+static error_t parse_opt_psid(char *source, unsigned char **target, size_t *target_len)
 {
-    while (source[0] != 0) {
-        if (source[1] == 0) {
-            return 1;
-        }
-
-        char source_upper = source[0];
-        if (source_upper >= '0' && source_upper <= '9') {
-            source_upper = source_upper - '0';
-        } else if (source_upper >= 'a' && source_upper <= 'f') {
-            source_upper = source_upper - 'a' + 10;
-        } else if (source_upper >= 'A' && source_upper <= 'F') {
-            source_upper = source_upper - 'A' + 10;
-        } else {
-            return 1;
-        }
-
-        char source_lower = source[1];
-        if (source_lower >= '0' && source_lower <= '9') {
-            source_lower = source_lower - '0';
-        } else if (source_lower >= 'a' && source_lower <= 'f') {
-            source_lower = source_lower - 'a' + 10;
-        } else if (source_lower >= 'A' && source_lower <= 'F') {
-            source_lower = source_lower - 'A' + 10;
-        } else {
-            return 1;
-        }
-
-        target[0] = source_upper << 4 | source_lower;
-
-        source += 2;
-        target += 1;
-        *target_len += 1;
+    size_t psid_len = strlen(source);
+    if (psid_len > PSID_MAX_LEN) {
+	return 1;
     }
 
+    *target_len = psid_len;
+    *target = source;
     return 0;
 }
 
@@ -255,9 +230,9 @@ static error_t parse_opt_child(int key, char *arg, struct argp_state *state)
         args->locking_range_length = strtoull(arg, NULL, 10);
         break;
     case ARG_KEY_VERIFY_PIN:
-        return parse_opt_hex(arg, args->verify_pin, &args->verify_pin_len);
+        return parse_opt_psid(arg, &args->verify_pin, &args->verify_pin_len);
     case ARG_KEY_ASSIGN_PIN:
-        return parse_opt_hex(arg, args->assign_pin, &args->assign_pin_len);
+        return parse_opt_psid(arg, &args->assign_pin, &args->assign_pin_len);
     case ARG_KEY_READ_LOCK_ENABLED:
         return parse_opt_bool(arg, &args->read_lock_enabled);
     case ARG_KEY_WRITE_LOCK_ENABLED:
