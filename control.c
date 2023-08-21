@@ -108,9 +108,9 @@ struct Arguments {
     uint16_t locking_range;
     size_t user[32];
     size_t user_count;
-    unsigned char *verify_pin;
+    unsigned char verify_pin[PIN_MAX_LEN];
     size_t verify_pin_len;
-    unsigned char *assign_pin;
+    unsigned char assign_pin[PIN_MAX_LEN];
     size_t assign_pin_len;
     uint64_t locking_range_start;
     uint64_t locking_range_length;
@@ -129,7 +129,7 @@ struct Arguments {
     .locking_range_length = VAL_UNDEFINED,
 };
 
-static error_t parse_opt_pin(char *source, unsigned char **target, size_t *target_len)
+static error_t parse_opt_pin(char *source, unsigned char *target, size_t *target_len)
 {
     size_t pin_len = strlen(source);
     if (pin_len > PIN_MAX_LEN) {
@@ -137,7 +137,7 @@ static error_t parse_opt_pin(char *source, unsigned char **target, size_t *targe
     }
 
     *target_len = pin_len;
-    *target = source;
+    strcpy(target, source);
     return 0;
 }
 
@@ -230,9 +230,9 @@ static error_t parse_opt_child(int key, char *arg, struct argp_state *state)
         args->locking_range_length = strtoull(arg, NULL, 10);
         break;
     case ARG_KEY_VERIFY_PIN:
-        return parse_opt_pin(arg, &args->verify_pin, &args->verify_pin_len);
+        return parse_opt_pin(arg, args->verify_pin, &args->verify_pin_len);
     case ARG_KEY_ASSIGN_PIN:
-        return parse_opt_pin(arg, &args->assign_pin, &args->assign_pin_len);
+        return parse_opt_pin(arg, args->assign_pin, &args->assign_pin_len);
     case ARG_KEY_READ_LOCK_ENABLED:
         return parse_opt_bool(arg, &args->read_lock_enabled);
     case ARG_KEY_WRITE_LOCK_ENABLED:
