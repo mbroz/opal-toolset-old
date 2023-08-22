@@ -16,7 +16,9 @@
 
 enum ArgKey {
     ARG_KEY_VERIFY_PIN = 'v',
+    ARG_KEY_VERIFY_PIN_HEX = 9,
     ARG_KEY_ASSIGN_PIN = 1,
+    ARG_KEY_ASSIGN_PIN_HEX = 8,
     ARG_KEY_USER = 'u',
     ARG_KEY_ADMIN = 'a',
     ARG_KEY_LOCKING_RANGE = 'l',
@@ -31,7 +33,12 @@ enum ArgKey {
 };
 
 static struct argp_option options_setup_range[] = {
+<<<<<<< HEAD
     { "verify-pin", ARG_KEY_VERIFY_PIN, "pin", 0, "Password of Admin1 authority", 0 },
+=======
+    { "verify-pin", ARG_KEY_VERIFY_PIN, "hex_pin", 0, "Password of Admin1 authority", 0 },
+    { "verify-pin-hex", ARG_KEY_VERIFY_PIN_HEX, "hex_pin", 0, "Password of Admin1 authority", 0 },
+>>>>>>> 890d995 (Test patch.)
     { "user", ARG_KEY_USER, "id", 0, "User to have control over the locking range (can be repeated)", 0 },
     { "locking-range", ARG_KEY_LOCKING_RANGE, "id", 0, "Locking range to change", 0 },
     { "locking-range-start", ARG_KEY_LOCKING_RANGE_START, "position", 0, NULL, 0 },
@@ -40,37 +47,69 @@ static struct argp_option options_setup_range[] = {
 };
 
 static struct argp_option options_list_range[] = {
+<<<<<<< HEAD
     { "verify-pin", ARG_KEY_VERIFY_PIN, "pin", 0, "Password of user authority", 0 },
+=======
+    { "verify-pin", ARG_KEY_VERIFY_PIN, "hex_pin", 0, "Password of user authority", 0 },
+    { "verify-pin-hex", ARG_KEY_VERIFY_PIN_HEX, "hex_pin", 0, "Password of user authority", 0 },
+>>>>>>> 890d995 (Test patch.)
     { "user", ARG_KEY_USER, "id", 0, "User authority id", 0 },
     { "locking-range", ARG_KEY_LOCKING_RANGE, "id", 0, "Locking range to list", 0 },
     { 0 }
 };
 
 static struct argp_option options_setup_user[] = {
+<<<<<<< HEAD
     { "verify-pin", ARG_KEY_VERIFY_PIN, "pin", 0, "Password of Admin1 authority", 0 },
     { "assign-pin", ARG_KEY_ASSIGN_PIN, "pin", 0, "Password to assign to selected user authority", 0 },
+=======
+    { "verify-pin", ARG_KEY_VERIFY_PIN, "hex_pin", 0, "Password of Admin1 authority", 0 },
+    { "verify-pin-hex", ARG_KEY_VERIFY_PIN_HEX, "hex_pin", 0, "Password of Admin1 authority", 0 },
+    { "assign-pin", ARG_KEY_ASSIGN_PIN, "hex_pin", 0, "Password to assign to selected user authority", 0 },
+    { "assign-pin-hex", ARG_KEY_ASSIGN_PIN_HEX, "hex_pin", 0, "Password to assign to selected user authority", 0 },
+>>>>>>> 890d995 (Test patch.)
     { "user", ARG_KEY_USER, "id", 0, "ID of the user authority", 0 },
     { 0 }
 };
 
 static struct argp_option options_setup_tper[] = { 
+<<<<<<< HEAD
     { "assign-pin", ARG_KEY_ASSIGN_PIN, "pin", 0, "Password to assign to the owner authority", 0 },
+=======
+    { "assign-pin", ARG_KEY_ASSIGN_PIN, "hex_pin", 0, "Password to assign to the owner authority", 0 },
+    { "assign-pin-hex", ARG_KEY_ASSIGN_PIN_HEX, "hex_pin", 0, "Password to assign to the owner authority", 0 },
+>>>>>>> 890d995 (Test patch.)
     { 0 }
 };
 
 static struct argp_option options_psid_revert[] = { 
+<<<<<<< HEAD
     { "verify-pin", ARG_KEY_VERIFY_PIN, "pin", 0, "PSID", 0 },
+=======
+    { "verify-pin", ARG_KEY_VERIFY_PIN, "hex_pin", 0, "PSID", 0 },
+    { "verify-pin-hex", ARG_KEY_VERIFY_PIN_HEX, "hex_pin", 0, "PSID", 0 },
+>>>>>>> 890d995 (Test patch.)
     { 0 } 
 };
 
 static struct argp_option options_regenerate_key[] = {
+<<<<<<< HEAD
     { "verify-pin", ARG_KEY_VERIFY_PIN, "pin", 0, "Password of Admin1 authority", 0 },
+=======
+    { "verify-pin", ARG_KEY_VERIFY_PIN, "hex_pin", 0, "Password of Admin1 authority", 0 },
+    { "verify-pin-hex", ARG_KEY_VERIFY_PIN_HEX, "hex_pin", 0, "Password of Admin1 authority", 0 },
+>>>>>>> 890d995 (Test patch.)
     { "locking-range", ARG_KEY_LOCKING_RANGE, "id", 0, "Locking range to re-generate", 0 },
     { 0 }
 };
 
 static struct argp_option options_unlock[] = {
+<<<<<<< HEAD
     { "verify-pin", ARG_KEY_VERIFY_PIN, "pin", 0, "Password of the authority", 0 },
+=======
+    { "verify-pin", ARG_KEY_VERIFY_PIN, "hex_pin", 0, "Password of the authority", 0 },
+    { "verify-pin-hex", ARG_KEY_VERIFY_PIN_HEX, "hex_pin", 0, "Password of the authority", 0 },
+>>>>>>> 890d995 (Test patch.)
     { "user", ARG_KEY_USER, "id", 0, "User authority to authenticate as", 0 },
     { "admin", ARG_KEY_ADMIN, "id", 0, "Admin authority to authenticate as", 0 },
     { "locking-range", ARG_KEY_LOCKING_RANGE, "id", 0, "Locking range to lock/unlock", 0 },
@@ -130,6 +169,19 @@ struct Arguments {
 };
 
 static error_t parse_opt_pin(char *source, unsigned char *target, size_t *target_len)
+{
+    size_t pin_len = strlen(source);
+
+    if (pin_len > PIN_MAX_LEN) {
+        return 1;
+    }
+
+    *target_len = pin_len;
+    strcpy((char *)target, source);
+    return 0;
+}
+
+static error_t parse_opt_hex(const char *source, unsigned char *target, size_t *target_len)
 {
     size_t pin_len = strlen(source);
 
@@ -255,8 +307,12 @@ static error_t parse_opt_child(int key, char *arg, struct argp_state *state)
         break;
     case ARG_KEY_VERIFY_PIN:
         return parse_opt_pin(arg, args->verify_pin, &args->verify_pin_len);
+    case ARG_KEY_VERIFY_PIN_HEX:
+        return parse_opt_hex(arg, args->verify_pin, &args->verify_pin_len);
     case ARG_KEY_ASSIGN_PIN:
         return parse_opt_pin(arg, args->assign_pin, &args->assign_pin_len);
+    case ARG_KEY_ASSIGN_PIN_HEX:
+        return parse_opt_hex(arg, args->assign_pin, &args->assign_pin_len);
     case ARG_KEY_READ_LOCK_ENABLED:
         return parse_opt_bool(arg, &args->read_lock_enabled);
     case ARG_KEY_WRITE_LOCK_ENABLED:
