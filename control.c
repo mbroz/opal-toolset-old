@@ -132,6 +132,30 @@ struct Arguments {
 static error_t parse_opt_pin(char *source, unsigned char *target, size_t *target_len)
 {
     size_t pin_len = strlen(source);
+
+    /* Read pin in hexadecimal format if it starts with "0x". */
+    if (pin_len > 1 && source[0] == '0' && source[1] == 'x') {
+	if (pin_len == 2) {
+            return 0;
+	}
+
+	source += 2;
+	unsigned char c;
+	pin_len = (pin_len - 2) / 2;
+
+	for (int i = 0; i < pin_len; i++) {
+	    if (sscanf(source, "%2hhx", &c) != 1) {
+		return 1;
+	    }
+
+	    target[i] = c;
+	    source += 2;
+	}
+
+	*target_len = pin_len;
+	return 0;
+    }
+
     if (pin_len > PIN_MAX_LEN) {
 	return 1;
     }
