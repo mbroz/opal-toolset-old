@@ -156,35 +156,23 @@ static error_t parse_opt_hex(const char *source, unsigned char *target, size_t *
 {
     size_t pin_len = strlen(source);
 
-    /* Read pin in hexadecimal format if it starts with "0x". */
-    if (pin_len > 1 && source[0] == '0' && source[1] == 'x') {
-	if (pin_len == 2) {
-            return 0;
-	}
-
-	source += 2;
-	unsigned char c;
-	pin_len = (pin_len - 2) / 2;
-
-	for (int i = 0; i < pin_len; i++) {
-	    if (sscanf(source, "%2hhx", &c) != 1) {
-		return 1;
-	    }
-
-	    target[i] = c;
-	    source += 2;
-	}
-
-	*target_len = pin_len;
-	return 0;
+    if (pin_len > 2 * PIN_MAX_LEN || pin_len % 2 != 0) {
+        return 1;
     }
 
-    if (pin_len > PIN_MAX_LEN) {
-	return 1;
+    pin_len /= 2;
+    unsigned char c;
+
+    for (int i = 0; i < pin_len; i++) {
+        if (sscanf(source, "%2hhx", &c) != 1) {
+            return 1;
+        }
+
+        target[i] = c;
+        source += 2;
     }
 
     *target_len = pin_len;
-    strcpy(target, source);
     return 0;
 }
 
