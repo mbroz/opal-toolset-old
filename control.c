@@ -148,7 +148,7 @@ static error_t parse_opt_pin(char *source, unsigned char *target, size_t *target
     }
 
     *target_len = pin_len;
-    strcpy((char *)target, source);
+    strncpy((char *)target, source, PIN_MAX_LEN);
     return 0;
 }
 
